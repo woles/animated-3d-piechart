@@ -4,7 +4,9 @@ This library is for drawing nice looking pie/donat charts with d3js.
 
 Here is the link to the [demo]()
 
-./img/chart.jpg
+![image][1]  
+
+[1]: ./img/chart.jpg
 
 ##How to install 
 
