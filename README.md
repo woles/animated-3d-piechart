@@ -10,7 +10,7 @@ Here is the link to the [demo]()
 
 ##How to install 
 
-`npm isntall animeted-3d-piechart`
+`npm install animeted-3d-piechart`
 
 ## How to use it
 
@@ -27,10 +27,10 @@ import Dounat3D from 'animated-3d-pie';
 
 var chartId = 'piechart';
 var data = [10, 20, 30];
-Donat3D.draw(chartId, data);
+piechart3D.draw(chartId, data);
 ```
 
-`Donat3D.draw(chartid, data, config')`
+`piechart3D.draw(chartid, data, config')`
 
 * `chartId` - string, id of html that where chart should be placed
 * `data` - array of numbers or objects
@@ -113,9 +113,9 @@ tooltipFunction: d => `${Number(d.value).toFixed(2)}`
 
 ### Update
 
-Update work the same way like Donat3D.draw(). This is for further implantation.
+Update work the same way like piechart3D.draw(). This is for further implantation.
 
-`Donat3D.update(chartId, data, config)`
+`piechart3D.update(chartId, data, config)`
 
 ## License
 
