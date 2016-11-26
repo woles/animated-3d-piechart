@@ -40,7 +40,7 @@ const initialState = randomData();
 export default createReducer(initialState, {
   [ADD_ROW]: state => {
     return Object.assign([], state, state.push({
-      value: 0,
+      value: 10,
       label: '',
       color: '#cacaca'
     }));

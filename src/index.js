@@ -291,8 +291,43 @@ piechart3D.update = (chartId, _data, userConfig) => {
       onClick(id, d2, rx, ry, conf.onSliceSelect) : null);
   }
 
-  select(`#${id}`).selectAll('.slice')
-        .data(data)
+  const slices = select(`#${id}`).selectAll('.slice');
+
+  const slicesCount = slices._groups[0].length;
+
+  if (slicesCount > data.length) {
+    for (let i = slicesCount - data.length - 1; i >= 0; i -= 1) {
+      select(`#${id}-slice-${i}`).remove();
+      select(`#${id}-${i}-text`).remove();
+      select(`#${id}-${i}-path`).remove();
+    }
+  } else if (slicesCount < data.length) {
+    for (let i = data.length - slicesCount - 1; i >= 0; i -= 1) {
+      const slice = select(`#${id}`).select('.slices')
+                       .append('g')
+                       .attr('class', 'slice')
+                       .attr('id', `#${id}-slice-${data.length - i}`);
+
+      slice.append('path').attr('class', 'wallSlice');
+      slice.append('path').attr('class', 'outerSlice');
+      slice.append('path').attr('class', 'innerSlice');
+      slice.append('path').attr('class', 'topSlice');
+
+      select(`#${id}`).select('.lines')
+                     .append('path')
+                     .attr('class', 'label-path');
+
+      select(`#${id}`).select('.labels')
+                     .append('text')
+                     .attr('class', 'label');
+
+      select(`#${id}`).select('.tooltips')
+                     .append('text')
+                     .attr('class', 'tooltip');
+    }
+  }
+
+  slices.data(data)
         .attr('id', d => `${id}-slice-${d.index}`)
         .on('click', d => conf.animatedSlices ? onClick(id, d, rx, ry, conf.onSliceSelect) : null)
         .on('mouseover', d => {

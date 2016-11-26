@@ -1,6 +1,6 @@
 {
   "name": "animated-3d-piechart",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Library for drawing nice looking pie/donate charts",
   "main": "lib/animated-3d-piechart.js",
   "homepage": "https://github.com/woles/animated-3d-piechart",
