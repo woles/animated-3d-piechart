@@ -16662,6 +16662,7 @@ var Table = function (_React$Component) {
             'th',
             null,
             _react2.default.createElement(_reactNumericInput2.default, { value: Number(d.value).toFixed(2),
+              min: 0,
               onChange: _this2.changeValue.bind(_this2, _this2.props.data.indexOf(d))
             })
           ),
@@ -17597,15 +17598,7 @@ function onClick(id, d, rx, ry, onSliceSelect) {
   }
 }
 
-piechart3D.update = function (id, _data, userConfig) {
-  (0, _d.select)('#' + id).selectAll('.slices').remove();
-  (0, _d.select)('#' + id).selectAll('.lines').remove();
-  (0, _d.select)('#' + id).selectAll('.labels').remove();
-  (0, _d.select)('#' + id).selectAll('.tooltips').remove();
-  piechart3D.draw(id, _data, userConfig);
-};
-
-piechart3D.draw = function (chartId, _data, userConfig) {
+function prepareConfig(userConfig) {
   var conf = {
     h: 20,
     ir: 0,
@@ -17641,6 +17634,183 @@ piechart3D.draw = function (chartId, _data, userConfig) {
 
   conf.ir /= 100;
   conf.ir = conf.ir < 0 || conf.ir > 1 ? 0 : conf.ir;
+  return conf;
+}
+
+piechart3D.update = function (chartId, _data, userConfig) {
+  var conf = prepareConfig(userConfig);
+
+  (0, _d.select)('#' + chartId).append('svg').style('width', '100%').style('height', '100%').append('g').attr('id', chartId + '-svg');
+
+  var height = (0, _d.select)('#' + chartId).node().getBoundingClientRect().height;
+  var width = (0, _d.select)('#' + chartId).node().getBoundingClientRect().width;
+
+  var rx = width / 4 * conf.size / 100;
+  var ry = rx * conf.angle / 90;
+  var duration = conf.animationDuration;
+
+  var id = chartId + '-svg';
+
+  var data = checkData(_data);
+
+  data = checkDataColors(data);
+  data = prepearData(data, conf.fontSize, height);
+
+  function drowingStart(d) {
+    (0, _d.select)('#' + id + '-slice-' + d.index).on('click', null);
+  }
+
+  function drowingEnd(d) {
+    (0, _d.select)('#' + id + '-slice-' + d.index).on('click', function (d2) {
+      return conf.animatedSlices ? onClick(id, d2, rx, ry, conf.onSliceSelect) : null;
+    });
+  }
+
+  (0, _d.select)('#' + id).selectAll('.slice').data(data).attr('id', function (d) {
+    return id + '-slice-' + d.index;
+  }).on('click', function (d) {
+    return conf.animatedSlices ? onClick(id, d, rx, ry, conf.onSliceSelect) : null;
+  }).on('mouseover', function (d) {
+    (0, _d.select)('#' + id + '-' + d.index + '-tooltip').style('opacity', 1);
+  }).on('mouseout', function (d) {
+    (0, _d.select)('#' + id + '-' + d.index + '-tooltip').style('opacity', 0.0);
+  });
+
+  var topSlices = (0, _d.select)('#' + id).selectAll('.topSlice');
+
+  topSlices.each(function (d) {
+    this.current = d;
+  }).data(data).attr('id', function (d) {
+    return id + '-' + d.index + '-top';
+  }).style('fill', conf.topColor).transition().delay(function (d) {
+    return d.parentIndex === 0 ? duration : 0;
+  }).duration(function (d) {
+    return d.parentIndex === 0 ? duration : duration;
+  }).attrTween('d', function (d) {
+    var i = (0, _d.interpolate)(this.current, d);
+    return function (t) {
+      return pieTop(i(t), rx, ry, conf.ir);
+    };
+  }).on('start', function (d) {
+    return drowingStart(d);
+  }).on('end', function (d) {
+    return drowingEnd(d);
+  });
+
+  var walls = (0, _d.select)('#' + id).selectAll('.wallSlice');
+
+  walls.each(function (d) {
+    this.current = d;
+  }).data(data).attr('id', function (d) {
+    return id + '-' + d.index + '-wall';
+  }).style('fill', conf.wallsColor).transition().delay(function (d) {
+    return d.parentIndex === 0 ? duration : 0;
+  }).duration(function (d) {
+    return d.parentIndex === 0 ? duration : duration;
+  }).attrTween('d', function (d) {
+    var i = (0, _d.interpolate)(this.current, d);
+    return function (t) {
+      return pieWalls(i(t), rx, ry, conf.h, conf.ir);
+    };
+  }).on('start', function (d) {
+    return drowingStart(d);
+  }).on('end', function (d) {
+    return drowingEnd(d);
+  });
+
+  var outers = (0, _d.select)('#' + id).selectAll('.outerSlice');
+
+  outers.each(function (d) {
+    this.current = d;
+  }).data(data).attr('id', function (d) {
+    return id + '-' + d.index + '-outer';
+  }).style('fill', conf.wallsColor).transition().delay(function (d) {
+    return d.parentIndex === 0 ? duration : 0;
+  }).duration(function (d) {
+    return d.parentIndex === 0 ? duration : duration;
+  }).attrTween('d', function (d) {
+    var i = (0, _d.interpolate)(this.current, d);
+    return function (t) {
+      return pieOuter(i(t), rx, ry, conf.h);
+    };
+  }).on('start', function (d) {
+    return drowingStart(d);
+  }).on('end', function (d) {
+    return drowingEnd(d);
+  });
+
+  var inner = (0, _d.select)('#' + id).selectAll('.innerSlice');
+
+  inner.each(function (d) {
+    this.current = d;
+  }).data(data).attr('id', function (d) {
+    return id + '-' + d.index + '-inner';
+  }).style('fill', conf.wallsColor).transition().delay(function (d) {
+    return d.parentIndex === 0 ? duration : 0;
+  }).duration(function (d) {
+    return d.parentIndex === 0 ? duration : duration;
+  }).attrTween('d', function (d) {
+    var i = (0, _d.interpolate)(this.current, d);
+    return function (t) {
+      return pieInner(i(t), rx, ry, conf.h, conf.ir);
+    };
+  }).on('start', function (d) {
+    return drowingStart(d);
+  }).on('end', function (d) {
+    return drowingEnd(d);
+  });
+
+  (0, _d.select)('#' + id).selectAll('.tooltip').data(data).attr('id', function (d) {
+    return id + '-' + d.index + '-tooltip';
+  }).style('font-size', conf.fontSize).style('fill', conf.tooltipColor).text(function (d) {
+    return conf.tooltip ? conf.tooltip(d) : null;
+  }).attr('x', function (d) {
+    return (rx + rx * conf.ir) / 2 * Math.cos(midAngle(d));
+  }).attr('y', function (d) {
+    return (ry + ry * conf.ir) / 2 * Math.sin(midAngle(d));
+  }).on('click', function (d) {
+    return conf.animatedSlices ? onClick(id, d, rx, ry, conf.onSliceSelect) : null;
+  }).on('mouseover', function (d) {
+    (0, _d.select)('#' + id + '-' + d.index + '-tooltip').style('opacity', conf.tooltip ? 1 : 0);
+  }).on('mouseout', function (d) {
+    (0, _d.select)('#' + id + '-' + d.index + '-tooltip').style('opacity', 0.0);
+  });
+
+  var lines = (0, _d.select)('#' + id).selectAll('.label-path');
+
+  lines.each(function (d) {
+    this.current = d;
+  }).data(data[data.length - 1].oldEndAngle ? data.slice(0, data.length - 2) : data).attr('id', function (d) {
+    return id + '-' + d.index + '-path';
+  }).style('stroke', conf.linesColor).style('opacity', conf.label ? 1 : 0).transition().duration(duration).attrTween('d', function (d) {
+    var i = (0, _d.interpolate)(this.current, d);
+    return function (t) {
+      return labelPath(i(t), rx, ry, conf.h);
+    };
+  });
+
+  (0, _d.select)('#' + id).selectAll('.label').each(function (d) {
+    this.current = d;
+  }).data(data[data.length - 1].oldEndAngle ? data.slice(0, data.length - 2) : data).attr('id', function (d) {
+    return id + '-' + d.index + '-text';
+  }).style('font-size', conf.fontSize).style('fill', conf.labelColor).text(conf.label ? conf.label : '').transition().duration(duration).attrTween('transform', function (d) {
+    var i = (0, _d.interpolate)(this.current, d);
+    return function (t) {
+      i(t).endAngle = d.startAngle + (d.endAngle - d.startAngle) * t;
+      var labelPathLength = 1 + conf.h / rx / 2;
+      return 'translate(' + (rx + 16) * (midAngle(i(t)) > 3 / 2 * Math.PI || midAngle(i(t)) < Math.PI / 2 ? 1 : -1) + ', \n                  ' + (ry * Math.sin(midAngle(i(t))) * labelPathLength + i(t).data.labelMargin + 3) + ')';
+    };
+  }).styleTween('text-anchor', function (d) {
+    var i = (0, _d.interpolate)(this.current, d);
+    return function (t) {
+      i(t).endAngle = d.startAngle + (d.endAngle - d.startAngle) * t;
+      return midAngle(i(t)) > 3 / 2 * Math.PI || midAngle(i(t)) < Math.PI / 2 ? 'start' : 'end';
+    };
+  });
+};
+
+piechart3D.draw = function (chartId, _data, userConfig) {
+  var conf = prepareConfig(userConfig);
 
   (0, _d.select)('#' + chartId).append('svg').style('width', '100%').style('height', '100%').append('g').attr('id', chartId + '-svg');
 
@@ -17804,7 +17974,7 @@ piechart3D.draw = function (chartId, _data, userConfig) {
 
     var labels = (0, _d.select)('#' + id).append('g').attr('transform', 'translate(' + width / 2 + ', ' + height / 2 + ')').attr('class', 'labels');
 
-    labels.selectAll('.labels').data(data[data.length - 1].oldEndAngle ? data.slice(0, data.length - 2) : data).enter().append('text').attr('id', function (d) {
+    labels.selectAll('.labels').data(data[data.length - 1].oldEndAngle ? data.slice(0, data.length - 2) : data).enter().append('text').attr('class', 'label').attr('id', function (d) {
       return id + '-' + d.index + '-text';
     }).style('font-size', conf.fontSize).style('fill', conf.labelColor).text(conf.label).transition().duration(duration).attrTween('transform', function (d) {
       var d2 = {};

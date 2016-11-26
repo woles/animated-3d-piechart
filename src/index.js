@@ -1,4 +1,4 @@
-import { pie, select, hsl } from 'd3';
+import { pie, select, hsl, interpolate } from 'd3';
 
 const piechart3D = {};
 
@@ -226,15 +226,7 @@ function onClick(id, d, rx, ry, onSliceSelect) {
   }
 }
 
-piechart3D.update = (id, _data, userConfig) => {
-  select(`#${id}`).selectAll('.slices').remove();
-  select(`#${id}`).selectAll('.lines').remove();
-  select(`#${id}`).selectAll('.labels').remove();
-  select(`#${id}`).selectAll('.tooltips').remove();
-  piechart3D.draw(id, _data, userConfig);
-};
-
-piechart3D.draw = (chartId, _data, userConfig) => {
+function prepareConfig(userConfig) {
   let conf = {
     h: 20,
     ir: 0,
@@ -264,6 +256,177 @@ piechart3D.draw = (chartId, _data, userConfig) => {
 
   conf.ir /= 100;
   conf.ir = conf.ir < 0 || conf.ir > 1 ? 0 : conf.ir;
+  return conf;
+}
+
+piechart3D.update = (chartId, _data, userConfig) => {
+  const conf = prepareConfig(userConfig);
+
+  select(`#${chartId}`).append('svg')
+                .style('width', '100%')
+                .style('height', '100%')
+                .append('g')
+                .attr('id', `${chartId}-svg`);
+
+  const height = select(`#${chartId}`).node().getBoundingClientRect().height;
+  const width = select(`#${chartId}`).node().getBoundingClientRect().width;
+
+  const rx = width / 4 * conf.size / 100;
+  const ry = rx * conf.angle / 90;
+  const duration = conf.animationDuration;
+
+  const id = `${chartId}-svg`;
+
+  let data = checkData(_data);
+
+  data = checkDataColors(data);
+  data = prepearData(data, conf.fontSize, height);
+
+  function drowingStart(d) {
+    select(`#${id}-slice-${d.index}`).on('click', null);
+  }
+
+  function drowingEnd(d) {
+    select(`#${id}-slice-${d.index}`).on('click', d2 => conf.animatedSlices ?
+      onClick(id, d2, rx, ry, conf.onSliceSelect) : null);
+  }
+
+  select(`#${id}`).selectAll('.slice')
+        .data(data)
+        .attr('id', d => `${id}-slice-${d.index}`)
+        .on('click', d => conf.animatedSlices ? onClick(id, d, rx, ry, conf.onSliceSelect) : null)
+        .on('mouseover', d => {
+          select(`#${id}-${d.index}-tooltip`).style('opacity', 1);
+        })
+        .on('mouseout', d => {
+          select(`#${id}-${d.index}-tooltip`).style('opacity', 0.0);
+        });
+
+  const topSlices = select(`#${id}`).selectAll('.topSlice');
+
+  topSlices.each(function (d) { this.current = d; })
+          .data(data)
+          .attr('id', d => `${id}-${d.index}-top`)
+          .style('fill', conf.topColor)
+          .transition()
+          .delay(d => d.parentIndex === 0 ? duration : 0)
+          .duration(d => d.parentIndex === 0 ? duration : duration)
+          .attrTween('d', function (d) {
+            const i = interpolate(this.current, d);
+            return t => pieTop(i(t), rx, ry, conf.ir);
+          })
+          .on('start', d => drowingStart(d))
+          .on('end', d => drowingEnd(d));
+
+  const walls = select(`#${id}`).selectAll('.wallSlice');
+
+  walls.each(function (d) { this.current = d; })
+          .data(data)
+          .attr('id', d => `${id}-${d.index}-wall`)
+          .style('fill', conf.wallsColor)
+          .transition()
+          .delay(d => d.parentIndex === 0 ? duration : 0)
+          .duration(d => d.parentIndex === 0 ? duration : duration)
+          .attrTween('d', function (d) {
+            const i = interpolate(this.current, d);
+            return t => pieWalls(i(t), rx, ry, conf.h, conf.ir);
+          })
+          .on('start', d => drowingStart(d))
+          .on('end', d => drowingEnd(d));
+
+  const outers = select(`#${id}`).selectAll('.outerSlice');
+
+  outers.each(function (d) { this.current = d; })
+          .data(data)
+          .attr('id', d => `${id}-${d.index}-outer`)
+          .style('fill', conf.wallsColor)
+          .transition()
+          .delay(d => d.parentIndex === 0 ? duration : 0)
+          .duration(d => d.parentIndex === 0 ? duration : duration)
+          .attrTween('d', function (d) {
+            const i = interpolate(this.current, d);
+            return t => pieOuter(i(t), rx, ry, conf.h);
+          })
+          .on('start', d => drowingStart(d))
+          .on('end', d => drowingEnd(d));
+
+  const inner = select(`#${id}`).selectAll('.innerSlice');
+
+  inner.each(function (d) { this.current = d; })
+          .data(data)
+          .attr('id', d => `${id}-${d.index}-inner`)
+          .style('fill', conf.wallsColor)
+          .transition()
+          .delay(d => d.parentIndex === 0 ? duration : 0)
+          .duration(d => d.parentIndex === 0 ? duration : duration)
+          .attrTween('d', function (d) {
+            const i = interpolate(this.current, d);
+            return t => pieInner(i(t), rx, ry, conf.h, conf.ir);
+          })
+          .on('start', d => drowingStart(d))
+          .on('end', d => drowingEnd(d));
+
+  select(`#${id}`).selectAll('.tooltip')
+          .data(data)
+          .attr('id', d => `${id}-${d.index}-tooltip`)
+          .style('font-size', conf.fontSize)
+          .style('fill', conf.tooltipColor)
+          .text(d => conf.tooltip ? conf.tooltip(d) : null)
+          .attr('x', d => (rx + rx * conf.ir) / 2 * Math.cos(midAngle(d)))
+          .attr('y', d => (ry + ry * conf.ir) / 2 * Math.sin(midAngle(d)))
+          .on('click', d => conf.animatedSlices ?
+            onClick(id, d, rx, ry, conf.onSliceSelect) : null)
+          .on('mouseover', d => {
+            select(`#${id}-${d.index}-tooltip`).style('opacity', conf.tooltip ? 1 : 0);
+          })
+          .on('mouseout', d => {
+            select(`#${id}-${d.index}-tooltip`).style('opacity', 0.0);
+          });
+
+  const lines = select(`#${id}`).selectAll('.label-path');
+
+  lines.each(function (d) { this.current = d; })
+        .data(data[data.length - 1].oldEndAngle ? data.slice(0, data.length - 2) : data)
+        .attr('id', d => `${id}-${d.index}-path`)
+        .style('stroke', conf.linesColor)
+        .style('opacity', conf.label ? 1 : 0)
+        .transition()
+        .duration(duration)
+        .attrTween('d', function (d) {
+          const i = interpolate(this.current, d);
+          return t => labelPath(i(t), rx, ry, conf.h);
+        });
+
+  select(`#${id}`).selectAll('.label')
+        .each(function (d) { this.current = d; })
+        .data(data[data.length - 1].oldEndAngle ? data.slice(0, data.length - 2) : data)
+        .attr('id', d => `${id}-${d.index}-text`)
+        .style('font-size', conf.fontSize)
+        .style('fill', conf.labelColor)
+        .text(conf.label ? conf.label : '')
+        .transition()
+        .duration(duration)
+        .attrTween('transform', function (d) {
+          const i = interpolate(this.current, d);
+          return t => {
+            i(t).endAngle = d.startAngle + (d.endAngle - d.startAngle) * t;
+            const labelPathLength = 1 + conf.h / rx / 2;
+            return `translate(${(rx + 16) * (midAngle(i(t)) >
+                  3 / 2 * Math.PI || midAngle(i(t)) < Math.PI / 2 ? 1 : -1)}, 
+                  ${ry * Math.sin(midAngle(i(t))) * labelPathLength + i(t).data.labelMargin + 3})`;
+          };
+        })
+        .styleTween('text-anchor', function (d) {
+          const i = interpolate(this.current, d);
+          return t => {
+            i(t).endAngle = d.startAngle + (d.endAngle - d.startAngle) * t;
+            return midAngle(i(t)) > 3 / 2 * Math.PI || midAngle(i(t)) < Math.PI / 2 ? 'start' : 'end';
+          };
+        });
+};
+
+piechart3D.draw = (chartId, _data, userConfig) => {
+  const conf = prepareConfig(userConfig);
 
   select(`#${chartId}`).append('svg')
                 .style('width', '100%')
@@ -465,6 +628,7 @@ piechart3D.draw = (chartId, _data, userConfig) => {
           .data(data[data.length - 1].oldEndAngle ? data.slice(0, data.length - 2) : data)
           .enter()
           .append('text')
+          .attr('class', 'label')
           .attr('id', d => `${id}-${d.index}-text`)
           .style('font-size', conf.fontSize)
           .style('fill', conf.labelColor)

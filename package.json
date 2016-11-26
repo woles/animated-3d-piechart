@@ -1,8 +1,9 @@
 {
   "name": "animated-3d-piechart",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Library for drawing nice looking pie/donate charts",
   "main": "lib/animated-3d-piechart.js",
+  "homepage": "https://github.com/woles/animated-3d-piechart",
   "scripts": {
     "build": "webpack --env.mode=build",
     "dev": "webpack-dev-server --content-base example --inline --host 0.0.0.0 --config webpack.config.js --env.mode=dev",
@@ -68,7 +69,7 @@
     "3d",
     "pie",
     "pie3d",
-    "donate"
+    "donat"
   ],
   "author": "woles",
   "license": "MIT",

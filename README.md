@@ -113,7 +113,7 @@ tooltipFunction: d => `${Number(d.value).toFixed(2)}`
 
 ### Update
 
-Update work the same way like piechart3D.draw(). This is for further implantation.
+Update chart if config or data changed.
 
 `piechart3D.update(chartId, data, config)`
 

@@ -44,6 +44,7 @@ class Table extends React.Component {
               </th>
               <th>
                 <NumericInput value={Number(d.value).toFixed(2)}
+                              min={0}
                               onChange={this.changeValue.bind(this, this.props.data.indexOf(d))}
                 />
               </th>

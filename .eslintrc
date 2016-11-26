@@ -3,6 +3,7 @@
   "parser": "babel-eslint",
   "rules": {
     "no-mixed-operators": 0,
+    "func-names": 0,
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
     "comma-dangle": 0,
     "no-confusing-arrow": 0,
