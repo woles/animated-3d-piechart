@@ -51,16 +51,16 @@ var data = [
       color: 'red',
       label: 'No'
   },
-    {
-      value: 20,
-        color: 'green',
-        label: 'Yes'
-    },
-    {
-      value: 5,
-        color: 'silver',
-        label: 'Others
-    }
+  {
+    value: 20,
+      color: 'green',
+      label: 'Yes'
+  },
+  {
+    value: 5,
+      color: 'silver',
+      label: 'Others'
+  }
 ];
 ```
 
