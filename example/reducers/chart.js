@@ -42,7 +42,7 @@ function tooltipFunction(d) {
 const initialState = {
   h: 40,
   angle: 60,
-  ir: 10,
+  ir: 60,
   size: 100,
   animationDuration: 750,
   fontSize: 12,

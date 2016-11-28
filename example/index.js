@@ -1,5 +1,3 @@
-// import { select } from 'd3';
-// import Donut3D from '../src';
 import React from 'react';
 import ReactDOM from 'react-dom';
 

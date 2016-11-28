@@ -186,11 +186,6 @@ function onClick(id, d, rx, ry, onSliceSelect) {
       .on('start', () => slice.on('click', null))
       .on('end', () => slice.on('click', onClickSlice));
 
-  select(`#${id}-${d.childIndex ? d.childIndex : d.index}-path`)
-    .transition()
-    .duration(1000)
-    .attr('transform', `translate(${pos})`);
-
   const tooltip = select(`#${id}-${d.childIndex ? d.childIndex : d.index}-tooltip`);
 
   tooltip.transition()
@@ -200,7 +195,6 @@ function onClick(id, d, rx, ry, onSliceSelect) {
       .on('end', () => tooltip.on('click', onClickSlice));
 
   const t = select(`#${id}-${d.childIndex ? d.childIndex : d.index}-text`);
-
   t.transition()
     .duration(1000)
     .attr('transform', d2 => {
@@ -214,6 +208,11 @@ function onClick(id, d, rx, ry, onSliceSelect) {
 
       return `translate(${[d2.data.labelPosition.x, d2.data.labelPosition.y]})`;
     });
+
+  const path = select(`#${id}-${d.childIndex ? d.childIndex : d.index}-path`);
+  path.transition()
+    .duration(1000)
+    .attr('transform', `translate(${pos})`);
 
   if (!d.data.moved) {
     d.data.moved = true;
@@ -262,12 +261,6 @@ function prepareConfig(userConfig) {
 piechart3D.update = (chartId, _data, userConfig) => {
   const conf = prepareConfig(userConfig);
 
-  select(`#${chartId}`).append('svg')
-                .style('width', '100%')
-                .style('height', '100%')
-                .append('g')
-                .attr('id', `${chartId}-svg`);
-
   const height = select(`#${chartId}`).node().getBoundingClientRect().height;
   const width = select(`#${chartId}`).node().getBoundingClientRect().width;
 
@@ -292,6 +285,15 @@ piechart3D.update = (chartId, _data, userConfig) => {
   }
 
   const slices = select(`#${id}`).selectAll('.slice');
+
+  slices.each(d => {
+    if (d.data.moved) {
+      onClick(id, d, rx, ry);
+      d.data.moved = false;
+    }
+
+    return null;
+  });
 
   const slicesCount = slices._groups[0].length;
 

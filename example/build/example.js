@@ -16841,7 +16841,7 @@ var App = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              null,
+              { className: 'form-row' },
               _react2.default.createElement(
                 'label',
                 null,
@@ -16860,7 +16860,7 @@ var App = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              null,
+              { className: 'form-row' },
               _react2.default.createElement(
                 'label',
                 null,
@@ -16879,7 +16879,7 @@ var App = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              null,
+              { className: 'form-row' },
               _react2.default.createElement(
                 'label',
                 null,
@@ -16898,7 +16898,7 @@ var App = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              null,
+              { className: 'form-row' },
               _react2.default.createElement(
                 'label',
                 null,
@@ -16917,7 +16917,7 @@ var App = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              null,
+              { className: 'form-row' },
               _react2.default.createElement(
                 'label',
                 null,
@@ -16936,7 +16936,7 @@ var App = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              null,
+              { className: 'form-row' },
               _react2.default.createElement(
                 'label',
                 null,
@@ -16955,7 +16955,7 @@ var App = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              null,
+              { className: 'form-row' },
               _react2.default.createElement(
                 'label',
                 null,
@@ -16969,7 +16969,7 @@ var App = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              null,
+              { className: 'form-row' },
               _react2.default.createElement(
                 'label',
                 null,
@@ -16983,7 +16983,7 @@ var App = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              null,
+              { className: 'form-row' },
               _react2.default.createElement(
                 'label',
                 null,
@@ -16997,7 +16997,7 @@ var App = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              null,
+              { className: 'form-row' },
               _react2.default.createElement(
                 'label',
                 null,
@@ -17011,7 +17011,7 @@ var App = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              null,
+              { className: 'form-row' },
               _react2.default.createElement(
                 'label',
                 null,
@@ -17137,8 +17137,6 @@ var _Root2 = _interopRequireDefault(_Root);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import { select } from 'd3';
-// import Donut3D from '../src';
 var target = document.getElementById('root');
 
 var store = (0, _config2.default)();
@@ -17188,7 +17186,7 @@ function tooltipFunction(d) {
 var initialState = {
   h: 40,
   angle: 60,
-  ir: 10,
+  ir: 60,
   size: 100,
   animationDuration: 750,
   fontSize: 12,
@@ -17563,8 +17561,6 @@ function onClick(id, d, rx, ry, onSliceSelect) {
     return slice.on('click', onClickSlice);
   });
 
-  (0, _d.select)('#' + id + '-' + (d.childIndex ? d.childIndex : d.index) + '-path').transition().duration(1000).attr('transform', 'translate(' + pos + ')');
-
   var tooltip = (0, _d.select)('#' + id + '-' + (d.childIndex ? d.childIndex : d.index) + '-tooltip');
 
   tooltip.transition().duration(1000).attr('transform', 'translate(' + pos + ')').on('start', function () {
@@ -17574,7 +17570,6 @@ function onClick(id, d, rx, ry, onSliceSelect) {
   });
 
   var t = (0, _d.select)('#' + id + '-' + (d.childIndex ? d.childIndex : d.index) + '-text');
-
   t.transition().duration(1000).attr('transform', function (d2) {
     if (!d.data.moved) {
       d2.data.labelPosition = {
@@ -17586,6 +17581,9 @@ function onClick(id, d, rx, ry, onSliceSelect) {
 
     return 'translate(' + [d2.data.labelPosition.x, d2.data.labelPosition.y] + ')';
   });
+
+  var path = (0, _d.select)('#' + id + '-' + (d.childIndex ? d.childIndex : d.index) + '-path');
+  path.transition().duration(1000).attr('transform', 'translate(' + pos + ')');
 
   if (!d.data.moved) {
     d.data.moved = true;
@@ -17640,8 +17638,6 @@ function prepareConfig(userConfig) {
 piechart3D.update = function (chartId, _data, userConfig) {
   var conf = prepareConfig(userConfig);
 
-  (0, _d.select)('#' + chartId).append('svg').style('width', '100%').style('height', '100%').append('g').attr('id', chartId + '-svg');
-
   var height = (0, _d.select)('#' + chartId).node().getBoundingClientRect().height;
   var width = (0, _d.select)('#' + chartId).node().getBoundingClientRect().width;
 
@@ -17667,6 +17663,15 @@ piechart3D.update = function (chartId, _data, userConfig) {
   }
 
   var slices = (0, _d.select)('#' + id).selectAll('.slice');
+
+  slices.each(function (d) {
+    if (d.data.moved) {
+      onClick(id, d, rx, ry);
+      d.data.moved = false;
+    }
+
+    return null;
+  });
 
   var slicesCount = slices._groups[0].length;
 

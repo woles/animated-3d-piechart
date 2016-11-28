@@ -57,7 +57,7 @@ class App extends React.Component {
             </div>
             <div className="col-lg-3">
               <h2>Config:</h2>
-              <div>
+              <div className="form-row">
                 <label>Height:</label>
                 <span style={{ float: 'right', marginRight: 50 }}>
                   <NumericInput min={0}
@@ -67,7 +67,7 @@ class App extends React.Component {
                   />px
                 </span>
               </div>
-              <div>
+              <div className="form-row">
                 <label>Inner radius:</label>
                 <span style={{ float: 'right', marginRight: 50 }}>
                   <NumericInput min={0}
@@ -77,7 +77,7 @@ class App extends React.Component {
                   />%
                 </span>
               </div>
-              <div>
+              <div className="form-row">
                 <label>Angle:</label>
                 <span style={{ float: 'right', marginRight: 50 }}>
                   <NumericInput min={0}
@@ -87,7 +87,7 @@ class App extends React.Component {
                   />deg
                 </span>
               </div>
-              <div>
+              <div className="form-row">
                 <label>Duration:</label>
                 <span style={{ float: 'right', marginRight: 50 }}>
                   <NumericInput min={0}
@@ -97,7 +97,7 @@ class App extends React.Component {
                   />ms
                 </span>
               </div>
-              <div>
+              <div className="form-row">
                 <label>Font size:</label>
                 <span style={{ float: 'right', marginRight: 50 }}>
                   <NumericInput min={0}
@@ -107,7 +107,7 @@ class App extends React.Component {
                   />px
                 </span>
               </div>
-              <div>
+              <div className="form-row">
                 <label>Chart size:</label>
                 <span style={{float: 'right', marginRight: 50}}>
                   <NumericInput min={0}
@@ -117,7 +117,7 @@ class App extends React.Component {
                   />%
                 </span>
               </div>
-              <div>
+              <div className="form-row">
                 <label>Animated slices:</label>
                 <input type="checkbox"
                        checked={this.props.config.animatedSlices}
@@ -125,7 +125,7 @@ class App extends React.Component {
                        style={{ float: 'right', marginRight: 50 }}
                 />
               </div>
-              <div>
+              <div className="form-row">
                 <label>Slice select function(console.log()):</label>
                 <input type="checkbox"
                        checked={this.props.config.onSliceSelect}
@@ -133,7 +133,7 @@ class App extends React.Component {
                        style={{ float: 'right', marginRight: 50 }}
                 />
               </div>
-              <div>
+              <div className="form-row">
                 <label>Label function(return %):</label>
                 <input type="checkbox"
                        checked={this.props.config.label}
@@ -141,7 +141,7 @@ class App extends React.Component {
                        style={{ float: 'right', marginRight: 50 }}
                 />
               </div>
-              <div>
+              <div className="form-row">
                 <label>Label color(value &lt; 20 ? red : black):</label>
                 <input type="checkbox"
                        checked={this.props.config.labelColor !== 'black'}
@@ -149,7 +149,7 @@ class App extends React.Component {
                        style={{ float: 'right', marginRight: 50 }}
                 />
               </div>
-              <div>
+              <div className="form-row">
                 <label>Tooltip(value.toFixed(2)):</label>
                 <input type="checkbox"
                        checked={this.props.config.tooltip}
